@@ -1,0 +1,9 @@
+# data files
+*.tex
+*.json
+*.pdf
+*.txt
+literature/
+
+# other
+__pychache__/
