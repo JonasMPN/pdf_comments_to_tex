@@ -240,6 +240,8 @@ def collect_notes(
             directory = join(current_path, child_dir)
             if not isdir(directory) and isfile(directory):
                 if child_dir[-4:] != ".pdf":
+                    if child_dir == ".DS_Store":
+                        continue
                     raise RuntimeError(f"Found file '{child_dir}' in directory '{root_directory}'. There must only be "
                                        ".pdf files here.")
                 filename = child_dir[:-4]
