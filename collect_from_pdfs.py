@@ -144,6 +144,7 @@ def process_notes(pdf: fitz.Document):
                         questions[category] = (note, page_num+1)                
 
                 last_subject = subject_translation[annot.info["subject"]]
+                
     for cat, question in questions.items():
         cat_split = cat.split("_")
         if len(cat_split) == 1:
@@ -154,7 +155,7 @@ def process_notes(pdf: fitz.Document):
         if cat in answers:
             notes = add_note_to_notes(notes, "answered", display_cat, *question, *answers[cat])
         else:
-            notes = add_note_to_notes(notes, "answered", display_cat, *question)
+            notes = add_note_to_notes(notes, "question", display_cat, *question)
     return notes
 
 
