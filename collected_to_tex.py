@@ -49,7 +49,7 @@ def collected_json_to_tex(ff_json: str, save_as: str="collected"):
             if not child.startswith("f_"):
                 with tex_document.create(idx_to_section[level_idx](child)):
                     level_idx += 1
-                    if level_idx > 3:
+                    if level_idx > 2:
                         raise NotImplementedError("Currently, only 3-level nested directories are supported but "
                                                   f"directory '{child}' is on the fourth.")
                     level_idx = loop_notes(tex_document, child_data, level_idx)
