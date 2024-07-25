@@ -5,15 +5,10 @@ import pylatex as tex
 def paper_notes_to_tex_paragraph(tex_document: tex.document, paper_data: dict):
     """
     """
+    tex_document.append(tex.utils.bold(paper_data['author']))
+    tex_document.append(paper_data['date'])
+    tex_document.append(paper_data['doi'])
     
-    par_title = paper_data['author']
-    par_date = paper_data['date']
-    par_doi = paper_data['doi']
-
-    tex_document.append(tex.utils.bold(par_title))
-    tex_document.append(par_date)
-    tex_document.append(par_doi)
-
     def create_latex_table(category: str, data: dict):
         table = tex.Table(position='h!')
         table.add_caption(category)
@@ -23,9 +18,17 @@ def paper_notes_to_tex_paragraph(tex_document: tex.document, paper_data: dict):
             tabular.add_row((tex.utils.bold('Subcategory'), tex.utils.bold('Page'),
                              tex.utils.bold('Content')))
             tabular.add_hline()
+
+            if category == "answered":
+                pass # here code for if answered
+            elif category == "general":
+                pass # here code if general
+            else:
+                pass # here code everything else
+
             for subcat, entries in data.items():
                 for entry in entries:
-                    if category == 'answers':
+                    if category == "answered":
                         tabular.add_row((subcat, entry[0], tex.utils.italic(entry[1])))
                         tabular.add_row(('', entry[2], entry[3]))
                     else:
@@ -33,8 +36,8 @@ def paper_notes_to_tex_paragraph(tex_document: tex.document, paper_data: dict):
 
         return table
 
-    for par_comments_key, subcat_dict in paper_data['comments'].items():
-        table = create_latex_table(par_comments_key, subcat_dict)
+    for category, subcat_dict in paper_data["notes"].items():
+        table = create_latex_table(category, subcat_dict)
     return  tex_document
 
 
@@ -46,6 +49,9 @@ def collected_json_to_tex(ff_json: str, save_as: str="collected"):
             if not child.startswith("f_"):
                 with tex_document.create(idx_to_section[level_idx](child)):
                     level_idx += 1
+                    if level_idx >= 3:
+                        raise NotImplementedError("Currently, only 3-level nested directories are supported but "
+                                                  f"directory '{child}' is on the fourth.")
                     level_idx = loop_notes(tex_document, child_data, level_idx)
             else:
                 with tex_document.create(idx_to_section[3](child[2:-4])):
