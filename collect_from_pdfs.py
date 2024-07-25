@@ -144,6 +144,7 @@ def process_notes(pdf: fitz.Document):
                         questions[category] = (note, page_num+1)                
 
                 last_subject = subject_translation[annot.info["subject"]]
+                
     for cat, question in questions.items():
         cat_split = cat.split("_")
         if len(cat_split) == 1:
@@ -154,7 +155,7 @@ def process_notes(pdf: fitz.Document):
         if cat in answers:
             notes = add_note_to_notes(notes, "answered", display_cat, *question, *answers[cat])
         else:
-            notes = add_note_to_notes(notes, "answered", display_cat, *question)
+            notes = add_note_to_notes(notes, "question", display_cat, *question)
     return notes
 
 
@@ -186,7 +187,7 @@ def add_pdf_info_to_collection(collection: dict, ff_paper: str, paper_overwrite:
                 info_to_set[subdir] = {}
                 info_to_set = info_to_set[subdir]
             else:
-                info_to_set[subdir], paper_misses = pdf_extract_info(ff_paper, paper_overwrite, paper_misses)
+                info_to_set["f_"+subdir], paper_misses = pdf_extract_info(ff_paper, paper_overwrite, paper_misses)
     return collection, paper_misses
 
 
@@ -239,6 +240,8 @@ def collect_notes(
             directory = join(current_path, child_dir)
             if not isdir(directory) and isfile(directory):
                 if child_dir[-4:] != ".pdf":
+                    if child_dir == ".DS_Store":
+                        continue
                     raise RuntimeError(f"Found file '{child_dir}' in directory '{root_directory}'. There must only be "
                                        ".pdf files here.")
                 filename = child_dir[:-4]
