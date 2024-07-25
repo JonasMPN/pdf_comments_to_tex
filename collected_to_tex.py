@@ -1,13 +1,15 @@
 import json
 import pylatex as tex
+from datetime import date
 
 
 def paper_notes_to_tex_paragraph(tex_document: tex.document, paper_data: dict):
     """
     """
     formatted_doi = tex.utils.escape_latex(paper_data["doi"])
+    date_ = date(day=1, month=paper_data['date'][0], year=paper_data['date'][1]).strftime("%m-%Y")
     tex_document.append(tex.utils.bold(paper_data['author']))
-    tex_document.append(paper_data['date'])
+    tex_document.append(date_)
     tex_document.append(tex.NoEscape(r'DOI: \href{https://doi.org/' + formatted_doi + '}{' + formatted_doi + '}'))
     
     def create_latex_table(
