@@ -12,6 +12,8 @@ subject_translation = {  # since the annotation data in the PDF is dependent on 
     "Sticky Note": "reply"
 }
 
+_internal_note_types = ["general", "answered"]
+
 
 def extract_year_month(date_str):
     if date_str.startswith("D:"):
@@ -57,6 +59,7 @@ def _merge_extracted_and_additional(
 
 def process_note(note: dict[str, str]):
     content = note["content"]
+    raise_error = ()
 
     info_data = content.split(":")
     if len(info_data) == 1:
@@ -66,6 +69,8 @@ def process_note(note: dict[str, str]):
     else:
         note_type_data = info_data[0].split("_")
         note_type = note_type_data[0]
+        if note_type in _internal_note_types:
+            raise_error = (note_type, info_data[1])
         if len(note_type_data) > 1:
             note_category = note_type_data[1:]
         else:
@@ -73,7 +78,7 @@ def process_note(note: dict[str, str]):
         note = info_data[1]
         while note[0] == " ":
             note = note[1:]
-    return note_type, note_category, note
+    return note_type, note_category, note, raise_error
 
 
 def add_note_to_notes(notes: dict, note_type: str, note_category: str|None, note: str, page_number: int,
@@ -106,7 +111,12 @@ def process_notes(pdf: fitz.Document):
 
         if annotations:
             for i_annot, annot in enumerate(annotations):
-                note_type, note_category, note = process_note(annot.info)
+                note_type, note_category, note, raise_error = process_note(annot.info)
+                if raise_error != ():
+                    raise ValueError(f"Note type '{raise_error[0]}' must not be used (prohibited note types are "
+                                     f"'{_internal_note_types}'). This came from note '{raise_error[1]}' in "
+                                     f"'{pdf.name}' on page {page_num+1}.")
+
                 if note_type != "question" and note_type != "answer":
                     # standalone note that is neither a question nor an answer
                     last_was_question = False
