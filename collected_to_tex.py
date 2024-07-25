@@ -9,30 +9,33 @@ def paper_notes_to_tex_paragraph(tex_document: tex.document, paper_data: dict):
     tex_document.append(paper_data['date'])
     tex_document.append(paper_data['doi'])
     
-    def create_latex_table(category: str, data: dict):
+    def create_latex_table(
+            category: str, 
+            data: dict[str, list[tuple[int, str]]]|dict[str, list[tuple[int, str, int, str]]]|list[tuple[int, str]]):
         table = tex.Table(position='h!')
         table.add_caption(category)
-        with table.create(tex.Tabular('|l|l|p{10cm}|')) as tabular:
-            # Table header
-            tabular.add_hline()
-            tabular.add_row((tex.utils.bold('Subcategory'), tex.utils.bold('Page'),
-                             tex.utils.bold('Content')))
-            tabular.add_hline()
 
-            if category == "answered":
-                pass # here code for if answered
-            elif category == "general":
-                pass # here code if general
-            else:
-                pass # here code everything else
+        if category == "general":
+            with table.create(tex.Tabular('ll')) as tabular:
+                tabular.add_hline()
+                tabular.add_row((tex.utils.bold('Page'), tex.utils.bold('Note')))
+                tabular.add_hline()
+                for page_number, note in data:
+                    # add lines here
+                    pass
+        else:
+            with table.create(tex.Tabular('lll')) as tabular:
+                tabular.add_hline()
+                tabular.add_row((tex.utils.bold('Subcategory'), tex.utils.bold('Page'), tex.utils.bold('Note')))
+                tabular.add_hline()
 
-            for subcat, entries in data.items():
-                for entry in entries:
-                    if category == "answered":
-                        tabular.add_row((subcat, entry[0], tex.utils.italic(entry[1])))
-                        tabular.add_row(('', entry[2], entry[3]))
-                    else:
-                        tabular.add_row((subcat, entry[0], entry[1]))
+                for subcat, entries in data.items():
+                    for entry in entries:
+                        if category == "answered":
+                            tabular.add_row((subcat, entry[0], tex.utils.italic(entry[1])))
+                            tabular.add_row(('', entry[2], entry[3]))
+                        else:
+                            tabular.add_row((subcat, entry[0], entry[1]))
 
         return table
 
