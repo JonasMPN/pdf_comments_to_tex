@@ -187,7 +187,7 @@ def add_pdf_info_to_collection(collection: dict, ff_paper: str, paper_overwrite:
                 info_to_set[subdir] = {}
                 info_to_set = info_to_set[subdir]
             else:
-                info_to_set[subdir], paper_misses = pdf_extract_info(ff_paper, paper_overwrite, paper_misses)
+                info_to_set["f_"+subdir], paper_misses = pdf_extract_info(ff_paper, paper_overwrite, paper_misses)
     return collection, paper_misses
 
 
