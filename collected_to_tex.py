@@ -5,11 +5,13 @@ import pylatex as tex
 def paper_notes_to_tex_paragraph(tex_document: tex.document, paper_data: dict):
     """
     """
+    formatted_doi = tex.utils.escape_latex(paper_data["doi"])
     tex_document.append(tex.utils.bold(paper_data['author']))
     tex_document.append(paper_data['date'])
-    tex_document.append(paper_data['doi'])
+    tex_document.append(tex.NoEscape(r'DOI: \href{https://doi.org/' + formatted_doi + '}{' + formatted_doi + '}'))
     
     def create_latex_table(
+            doc,
             category: str, 
             data: dict[str, list[tuple[int, str]]]|dict[str, list[tuple[int, str, int, str]]]|list[tuple[int, str]]):
         table = tex.Table(position='h!')
@@ -21,8 +23,12 @@ def paper_notes_to_tex_paragraph(tex_document: tex.document, paper_data: dict):
                 tabular.add_row((tex.utils.bold('Page'), tex.utils.bold('Note')))
                 tabular.add_hline()
                 for page_number, note in data:
+                    tabular.add_row((page_number, note))
                     # add lines here
-                    pass
+                    # each line gets the page number in the first column and the note in the second column
+                    # font stays the same (normal) throughout the table
+                    # good luck solider :D
+                tabular.add_hline()
         else:
             with table.create(tex.Tabular('lll')) as tabular:
                 tabular.add_hline()
@@ -30,18 +36,17 @@ def paper_notes_to_tex_paragraph(tex_document: tex.document, paper_data: dict):
                 tabular.add_hline()
 
                 for subcat, entries in data.items():
-                    for entry in entries:
+                    for i, entry in enumerate(entries):
                         if category == "answered":
-                            tabular.add_row((subcat, entry[0], tex.utils.italic(entry[1])))
+                            tabular.add_row((subcat if i==0 else '', entry[0], tex.utils.italic(entry[1])))
                             tabular.add_row(('', entry[2], entry[3]))
                         else:
-                            tabular.add_row((subcat, entry[0], entry[1]))
-
-        return table
+                            tabular.add_row((subcat if i==0 else '', entry[0], entry[1]))
+        doc.append(table)
 
     for category, subcat_dict in paper_data["notes"].items():
-        table = create_latex_table(category, subcat_dict)
-    return  tex_document
+        create_latex_table(tex_document, category, subcat_dict)
+
 
 
 def collected_json_to_tex(ff_json: str, save_as: str="collected"):
