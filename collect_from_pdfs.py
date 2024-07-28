@@ -108,6 +108,7 @@ def process_notes(pdf: fitz.Document):
     for page_num in range(len(pdf)):
         page = pdf.load_page(page_num)
         annotations = page.annots()
+        page_str = str(page_num+1)
 
         if annotations:
             for i_annot, annot in enumerate(annotations):
@@ -115,17 +116,17 @@ def process_notes(pdf: fitz.Document):
                 if raise_error != ():
                     raise ValueError(f"Note type '{raise_error[0]}' must not be used (prohibited note types are "
                                      f"'{_internal_note_types}'). This came from note '{raise_error[1]}' in "
-                                     f"'{pdf.name}' on page {page_num+1}.")
+                                     f"'{pdf.name}' on page {page_str}.")
 
                 if note_type != "question" and note_type != "answer":
                     # standalone note that is neither a question nor an answer
                     last_was_question = False
-                    notes = add_note_to_notes(notes, note_type, note_category[0], note, page_num+1)
+                    notes = add_note_to_notes(notes, note_type, note_category[0], note, page_str)
                 elif note_type == "answer":
                     if last_subject != subject_translation[annot.info["subject"]]:
                         if last_was_question:
                             # if the answer-question pair is written as a note-answer pair in the pdf
-                            notes = add_note_to_notes(notes, "answered", *last_question, note, page_num+1)
+                            notes = add_note_to_notes(notes, "answered", *last_question, note, page_str)
                             last_question = ()
                         else:
                             pdf_name = pdf.name.replace("\\", "/").split("/")[-1]
@@ -137,7 +138,7 @@ def process_notes(pdf: fitz.Document):
                             raise ValueError(f"Answer '{note}' in '{pdf_name}' is not connected to a question but it "
                                              "must. The note specifer should end in '_idx'.")
                         category = "_".join(str(cat) for cat in note_category)
-                        answers[category] = (note, page_num+1)
+                        answers[category] = (note, page_str)
 
                 if last_question != ():
                     notes = add_note_to_notes(notes, "question", *last_question)
@@ -148,10 +149,10 @@ def process_notes(pdf: fitz.Document):
                         # questions that have directly replied answers should not contain '_idx' specifiers in their
                         # category defintion
                         last_was_question = True
-                        last_question = (note_category[0], note, page_num+1)
+                        last_question = (note_category[0], note, page_str)
                     else:
                         category = "_".join(str(cat) for cat in note_category)
-                        questions[category] = (note, page_num+1)                
+                        questions[category] = (note, page_str)                
 
                 last_subject = subject_translation[annot.info["subject"]]
                 
@@ -190,6 +191,7 @@ def add_pdf_info_to_collection(collection: dict, ff_paper: str, paper_overwrite:
     idx_file = len(split_path)-1
     info_to_set = collection
     for i, subdir in enumerate(split_path):
+        subdir = subdir.replace("_", " ")
         if subdir in info_to_set:
             info_to_set = info_to_set[subdir]
         else:
@@ -197,7 +199,11 @@ def add_pdf_info_to_collection(collection: dict, ff_paper: str, paper_overwrite:
                 info_to_set[subdir] = {}
                 info_to_set = info_to_set[subdir]
             else:
-                info_to_set["f_"+subdir], paper_misses = pdf_extract_info(ff_paper, paper_overwrite, paper_misses)
+                if subdir not in paper_overwrite:
+                    paper = subdir.replace("_", " ")
+                else:
+                    paper = paper[subdir]["name"]
+                info_to_set["f_"+paper], paper_misses = pdf_extract_info(ff_paper, paper_overwrite, paper_misses)
     return collection, paper_misses
 
 
