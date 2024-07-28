@@ -9,3 +9,6 @@ literature/
 __pycache__/
 other/
 *.zip
+
+# python files
+test.py
