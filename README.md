@@ -13,6 +13,7 @@ Todo.
 - [x] support question-answer pairs that are not a note-and-note-answer
 - [x] add special categories: general, question, answered
 - [ ] create second .json in which all notes for a certain category or subcategory are combined
+- [ ] restructuring of code; adding comments
 
 # Creating the .tex file
 - [x] create section structure based on .json structure
@@ -22,6 +23,7 @@ Todo.
 - [ ] turn author(s), date, doi, into single row three column table 
 - [ ] add the "summary" as a block of text below the paper definition   
 - [ ] create .tex for the second .json (see Note extraction and sorting)
+- [ ] restructuring of code; adding comments
 
 # Ideas to consider
 - [ ] None yet
