@@ -14,6 +14,8 @@ Todo.
 - [x] add special categories: general, question, answered
 - [ ] create second .json in which all notes for a certain category or subcategory are combined
 - [ ] restructuring of code; adding comments
+- [ ] write all existing categroies & subcategories to categories.json
+- [ ] allow categories.json to map categories to one another 
 
 # Creating the .tex file
 - [x] create section structure based on .json structure
