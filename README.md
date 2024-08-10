@@ -17,6 +17,7 @@ Todo.
 - [ ] write all existing categroies & subcategories to categories.json
 - [ ] allow categories.json to map categories to one another
 - [ ] allow multiple categories per note
+- [ ] test for comments added in other suites than adobe acrobat reader
 
 # Creating the .tex file
 - [x] create section structure based on .json structure
