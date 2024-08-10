@@ -15,7 +15,8 @@ Todo.
 - [ ] create second .json in which all notes for a certain category or subcategory are combined
 - [ ] restructuring of code; adding comments
 - [ ] write all existing categroies & subcategories to categories.json
-- [ ] allow categories.json to map categories to one another 
+- [ ] allow categories.json to map categories to one another
+- [ ] allow multiple categories per note
 
 # Creating the .tex file
 - [x] create section structure based on .json structure
