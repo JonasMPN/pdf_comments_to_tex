@@ -26,6 +26,7 @@ Todo.
 - [ ] add the "summary" as a block of text below the paper definition   
 - [ ] create .tex for the second .json (see Note extraction and sorting)
 - [ ] restructuring of code; adding comments
+- [ ] sort category tables by "key", "general", then the rests
 
 # Ideas to consider
 - [ ] None yet
