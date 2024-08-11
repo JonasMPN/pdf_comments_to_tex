@@ -13,6 +13,7 @@ Todo.
 - [x] support question-answer pairs that are not a note-and-note-answer
 - [x] add special categories: general, question, answered
 - [ ] create second .json in which all notes for a certain category or subcategory are combined
+  - [ ] sort notes by year
 - [ ] restructuring of code; adding comments
 - [ ] write all existing categroies & subcategories to categories.json
 - [ ] allow categories.json to map categories to one another
