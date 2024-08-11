@@ -19,6 +19,7 @@ Todo.
 - [ ] allow categories.json to map categories to one another
 - [ ] allow multiple categories per note
 - [ ] test for comments added in other suites than adobe acrobat reader
+- [ ] discard and collect PDFs that have no notes
 
 # Creating the .tex file
 - [x] create section structure based on .json structure
