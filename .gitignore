@@ -4,6 +4,7 @@
 *.pdf
 *.txt
 literature/
+literature_test/
 
 # other
 __pycache__/
