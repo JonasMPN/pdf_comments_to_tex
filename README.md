@@ -6,6 +6,13 @@ Running `main.py` collects all notes from given PDFs and creates a .tex file. Th
 
 Todo.
 
+# Known current limitations/unhandeled unexpected user input
+
+* [ ] a dictionary can only contain dictionaries or .pdfs, not a mix
+* [ ] notes that only specify a category but are empty otherwise throw errors (completely empty notes probably, too)
+* [ ] only works with notes created in PDF viewers that are in English/German (at least adobe acrobat annotates their notes based on the language settings)
+* [ ] publication dates in the metadata must be of a specific format
+
 # Note extraction and sorting; create .json
 
 - [X] extract notes from one .pdf
@@ -40,4 +47,4 @@ Todo.
 
 # Ideas to consider
 
-- [ ] None yet
+- [ ] use of longtable instead of table
