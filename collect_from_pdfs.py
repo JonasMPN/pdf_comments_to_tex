@@ -1,8 +1,9 @@
-import fitz 
+import fitz
 from os.path import join, abspath, dirname, isdir, isfile
 from os import listdir
 import json
 from datetime import datetime
+from copy import deepcopy
 
 subject_translation = {  # since the annotation data in the PDF is dependent on the language settings of the PDF reader 
     # that was used to add the annotations
@@ -212,13 +213,35 @@ def add_pdf_info_to_collection(collection: dict, ff_paper: str, paper_overwrite:
     return collection, paper_misses
 
 
+def _sort_out_empty(collected_notes: dict) -> tuple[dict, dict]:
+    def iter_notes(notes_loop: dict, notes_pop: dict, empty: dict):
+        for directory, subdir in notes_loop.items():
+            if not list(subdir)[0].startswith("f_"):
+                empty[directory] = {}
+                notes_pop[directory], empty[directory] = iter_notes(subdir, notes_pop[directory], empty[directory])
+            else:
+                empty[directory] = []
+                all_empty = True
+                for paper, data in subdir.items():
+                    if data["notes"] == {}:
+                        empty[directory].append(paper[2:])
+                        notes_pop[directory].pop(paper)
+                    else:
+                        all_empty = False
+                
+                if all_empty:
+                    notes_pop.pop(directory)
+        return notes_pop, empty
+    return iter_notes(collected_notes, deepcopy(collected_notes), {})
+
+
 def collect_notes(
         root: str="",
         dirname_literature: str="literature",
         file_overwrite: str=None,
         file_json: str=None,
-        file_missing: str=None,
-        file_empty: str=None,
+        file_missing: str="missing.json",
+        file_empty: str="empty.json",
 ):
     """Collects all notes from the PDFs present in an arbitrary directory structure that lies in the 'root' 
     directory. 
@@ -236,19 +259,20 @@ def collect_notes(
     :rtype: _type_
     """
     dir_lit = join(root, dirname_literature)
-    ff_missing = join(root, "missing.json")
+
+    ff_missing = join(root, file_missing)
     if not isfile(ff_missing):
         missing = {}
     else:
         with open(ff_missing, "r") as f_additional:
             missing = json.load(f_additional)
 
-    ff_overwrite = join(root, file_overwrite)
-    if not isfile(ff_overwrite):
-        overwrite = {}
-    else:
+    if file_overwrite is not None:
+        ff_overwrite = join(root, file_overwrite)
         with open(ff_overwrite, "r") as f_overwrite:
             overwrite = json.load(f_overwrite)
+    else:
+        overwrite = {}
             
     for paper_overwrite_field, overwrite_info in overwrite.items():
         if paper_overwrite_field in missing:
@@ -292,6 +316,11 @@ def collect_notes(
 
     for directory in join(root, dir_lit).replace("\\", "/").split("/"):
         collected_info = collected_info[directory]
+    
+    if file_empty:
+        collected_info, empty = _sort_out_empty(collected_info)
+        with open(file_empty, "w") as f_empty:
+            json.dump(empty, f_empty, indent=4)
 
     if file_json:
         with open(file_json, "w") as f_notes:
