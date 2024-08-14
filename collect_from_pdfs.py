@@ -9,7 +9,9 @@ subject_translation = {  # since the annotation data in the PDF is dependent on 
     "Kommentar zu Text": "note",
     "Comment on Text": "note",
     "Notiz": "reply",
-    "Sticky Note": "reply"
+    "Sticky Note": "reply",
+    "Hervorheben": "note",
+    "Highlight": "note,"
 }
 
 _internal_note_types = ["general", "answered"]
@@ -20,8 +22,11 @@ def extract_year_month(date_str):
         date_str = date_str[2:]
     
     date_time_str = date_str[:14]
-    date_time = datetime.strptime(date_time_str, "%Y%m%d%H%M%S")
-    return date_time.month, date_time.year
+    try:
+        date_time = datetime.strptime(date_time_str, "%Y%m%d%H%M%S")
+        return date_time.month, date_time.year
+    except ValueError:
+        return 1, 1
 
 
 def extract_doi(subject: str):
@@ -152,8 +157,8 @@ def process_notes(pdf: fitz.Document):
                         last_question = (note_category[0], note, page_str)
                     else:
                         category = "_".join(str(cat) for cat in note_category)
-                        questions[category] = (note, page_str)                
-
+                        questions[category] = (note, page_str)
+                                       
                 last_subject = subject_translation[annot.info["subject"]]
                 
     for cat, question in questions.items():
@@ -210,8 +215,10 @@ def add_pdf_info_to_collection(collection: dict, ff_paper: str, paper_overwrite:
 def collect_notes(
         root: str="",
         dirname_literature: str="literature",
-        write_json: bool=False,
-        ff_output: str="collected_notes.json"
+        file_overwrite: str=None,
+        file_json: str=None,
+        file_missing: str=None,
+        file_empty: str=None,
 ):
     """Collects all notes from the PDFs present in an arbitrary directory structure that lies in the 'root' 
     directory. 
@@ -219,8 +226,8 @@ def collect_notes(
     :param root: Root/parent directory of the literature, defaults to None which presupposes that this file 
     (transfer.py) is inside the first level of the literature root directory.
     :type root: str, optional
-    :param write_json: Whether or not the collected notes are saved as a .json, defaults to False
-    :type write_json: bool, optional
+    :param file_json: Whether or not the collected notes are saved as a .json, defaults to False
+    :type file_json: bool, optional
     :param ff_output: The name of the .json file with the collect notes, defaults to "collected_notes.json"
     :type ff_output: str, optional
     :param additional_information: _description_, defaults to None
@@ -229,7 +236,6 @@ def collect_notes(
     :rtype: _type_
     """
     dir_lit = join(root, dirname_literature)
-    ff_output = ff_output if ff_output is not None else join(root, ff_output)
     ff_missing = join(root, "missing.json")
     if not isfile(ff_missing):
         missing = {}
@@ -237,7 +243,7 @@ def collect_notes(
         with open(ff_missing, "r") as f_additional:
             missing = json.load(f_additional)
 
-    ff_overwrite = join(root, "overwrite.json")
+    ff_overwrite = join(root, file_overwrite)
     if not isfile(ff_overwrite):
         overwrite = {}
     else:
@@ -256,7 +262,7 @@ def collect_notes(
             directory = join(current_path, child_dir)
             if not isdir(directory) and isfile(directory):
                 if child_dir[-4:] != ".pdf":
-                    if child_dir == ".DS_Store":
+                    if child_dir == ".DS_Store":  # some macOS stuff
                         continue
                     raise RuntimeError(f"Found file '{child_dir}' in directory '{root_directory}'. There must only be "
                                        ".pdf files here.")
@@ -279,14 +285,17 @@ def collect_notes(
     current_path = dir_lit
     _, collected_info = iter_dirs(dir_lit, current_path, collected_info)
 
+    
+    if file_missing:
+        with open(ff_missing, "w") as f_missing:
+            json.dump(missing, f_missing, indent=4)
+
     for directory in join(root, dir_lit).replace("\\", "/").split("/"):
         collected_info = collected_info[directory]
 
-    with open(ff_missing, "w") as f_missing:
-        json.dump(missing, f_missing, indent=4)
-
-    if write_json:
-        with open(ff_output, "w") as f_notes:
+    if file_json:
+        with open(file_json, "w") as f_notes:
             json.dump(collected_info, f_notes, indent=4)
+
     return collected_info
 
