@@ -152,7 +152,6 @@ class LimitTabular(Tabular):
             else:
                 left.append([""])
                 done.append(True)
-        # split.append("&".join(new_row)+r"\\%")
         subrows.append(new_row)
         if not all(done):
             self._fit_row(max_chars_per_col, left, subrows)
@@ -174,15 +173,14 @@ def create_latex_table(
 
         if category == "general":
             with table.create(LimitTabular('ll', booktabs=True)) as tabular:
-                # tabular.add_row((tex.utils.bold('Page'), tex.utils.bold('Note')))
                 tabular.add_row("Page", "Note")
                 tabular.append(Command("midrule"))
-                for row in tabular.limited_rows(data):
-                    tabular.add_row(*row)
+                for split_rows in tabular.limited_rows(data):
+                    for row in split_rows:
+                        tabular.add_row(*row)
                     
         else:
             with table.create(LimitTabular('lll', booktabs=True)) as tabular:
-                # tabular.add_row((tex.utils.bold('Subcategory'), tex.utils.bold('Page'), tex.utils.bold('Note')))
                 tabular.add_row("Subcategory", "Page", "Note")
                 tabular.append(Command("midrule"))
 
@@ -209,18 +207,22 @@ def create_latex_table(
 def paper_notes_to_tex_paragraph(tex_document: tex.document, paper_data: dict):
     """
     """
-    date_ = date(day=1, month=paper_data['date'][0], year=paper_data['date'][1]).strftime("%m-%Y")
+    if paper_data["date"] == "missing":
+        date_formatted = "date missing"
+    else:
+        date_formatted = date(day=1, month=paper_data['date'][0], year=paper_data['date'][1]).strftime("%m-%Y")
     tex_document.append(tex.utils.bold(paper_data['author']))
-    tex_document.append(date_)
+    tex_document.append(date_formatted)
     tex_document.append(Command("href", f"https://doi.org/{paper_data['doi']}", extra_arguments=paper_data['doi']))
-    # tex_document.append(texstr(r'DOI: \href{https://doi.org/' + formatted_doi + '}{' + formatted_doi + '}', 
-    #                            is_link=True))
 
     for category, subcat_dict in paper_data["notes"].items():
         create_latex_table(tex_document, category, subcat_dict)
 
 
-def collected_json_to_tex(ff_json: str, save_as: str="collected"):
+def collected_notes_to_tex(collected_notes: dict=None, ff_json: str=None, save_as: str="collected"):
+    if (collected_notes is None and ff_json is None) or (collected_notes is not None and ff_json is not None):
+        raise ValueError("Either 'collected_notes' or 'ff_json' must be set using 'collected_json_to_tex()', not both "
+                         "or neither.")
     idx_to_section = {0: Section, 1: Subsection, 2: Subsubsection, 3: Paragraph}
     def loop_notes(tex_document: tex.Document, dir_data: dict, level_idx: int):
         for child, child_data in dir_data.items():
@@ -232,8 +234,9 @@ def collected_json_to_tex(ff_json: str, save_as: str="collected"):
                                                   f"directory '{child}' is on the fourth.")
                     level_idx = loop_notes(tex_document, child_data, level_idx)
             else:
-                with tex_document.create(idx_to_section[3](child[2:-4])):
-                    paper_notes_to_tex_paragraph(tex_document, child_data)
+                if child_data != {}:
+                    with tex_document.create(idx_to_section[3](child[2:-4])):
+                        paper_notes_to_tex_paragraph(tex_document, child_data)
         return level_idx-1
     
     doc = Document(documentclass="article", document_options="a4paper")
@@ -241,11 +244,13 @@ def collected_json_to_tex(ff_json: str, save_as: str="collected"):
         doc = apply(doc)
     
     doc.append(texstr("\contents"))
-        
-    with open(ff_json, "r") as file_notes:
-        notes = json.load(file_notes)
+    
+    if ff_json is not None:
+        with open(ff_json, "r") as file_notes:
+            collected_notes = json.load(file_notes)
+    
     level_idx = 0
-    loop_notes(doc, notes, level_idx)
+    loop_notes(doc, collected_notes, level_idx)
     doc.generate_tex(save_as)
 
 
