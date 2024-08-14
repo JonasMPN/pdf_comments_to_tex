@@ -41,8 +41,8 @@ def redefine(tex_document: Document):
     geometry_options = texstr("""a4paper, 
                               left=0.15\paperwidth, 
                               right=0.15\paperwidth, 
-                              top=0.12\paperheight, 
-                              bottom=0.18\paperheight""", "\geometry{")
+                              top=0.1\paperheight, 
+                              bottom=0.1\paperheight""", "\geometry{")
     tex_document.preamble.append(Command("geometry", arguments=geometry_options))
     tex_document.preamble.append(Command("setcounter", arguments="tocdepth", extra_arguments="4"))
     return tex_document
@@ -237,6 +237,7 @@ def collected_notes_to_tex(collected_notes: dict=None, ff_json: str=None, save_a
                 if child_data != {}:
                     with tex_document.create(idx_to_section[3](child[2:-4])):
                         paper_notes_to_tex_paragraph(tex_document, child_data)
+                        tex_document.append(Command("clearpage"))
         return level_idx-1
     
     doc = Document(documentclass="article", document_options="a4paper")
