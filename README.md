@@ -48,3 +48,6 @@ Todo.
 # Ideas to consider
 
 - [ ] use of longtable instead of table
+- [ ] support for .md files; possibly:
+  - [ ] each paper gets it's own .md (take folder structure, too?)
+  - [ ] create MOC from it (add MOC-category comment, MOC could additionally be taken from folder structure)
