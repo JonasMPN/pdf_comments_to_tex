@@ -44,6 +44,9 @@ Todo.
 - [ ] restructuring of code; adding comments
 - [ ] sort category tables by "key", "general", then the rests
 - [ ] add logging
+- [ ] support latex commands in notes
+  - [ ] for the creation of .tex
+  - [ ] for the creation of .md
 
 # Ideas to consider
 
