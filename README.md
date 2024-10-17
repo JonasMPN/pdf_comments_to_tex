@@ -30,7 +30,8 @@ Todo.
 - [ ] allow categories.json to map categories to one another
 - [ ] allow multiple categories per note
 - [ ] test for comments added in other suites than Adobe Acrobat Reader
-- [ ] discard and collect PDFs that have no notes
+- [ ] discard and collect (to read later) PDFs that have no notes 
+  - [ ] add a "read later" note that adds this PDF to the list of PDFs that should still be read 
 - [ ] add logging
 
 # Creating the .tex file
