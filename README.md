@@ -10,7 +10,7 @@ Easiest:
 4. Run `main.py`.
 5. Compile the created "collected.tex", e.g. by copying it into Overleaf.
 
-Read [Current limitations](#known-current-limitations).
+Read the [known current limitations](#known-current-limitations).
 
 # Known current limitations
 
