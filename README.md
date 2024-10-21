@@ -3,10 +3,16 @@
 Running `main.py` collects all notes from given PDFs and creates a .tex file. This .tex file can e.g. be copied into Overleaf and compiled immediately.
 
 # Setup
+Easiest:
+1. Clone repository.
+2. Create directory "literature" in the same directory as where this repository was cloned into.
+3. Fill directory "literature" with your literature*.
+4. Run `main.py`.
+5. Compile the created "collected.tex", e.g. by copying it into Overleaf.
 
-Todo.
+Read [Current limitations](#known-current-limitations).
 
-# Known current limitations/unhandled unexpected user input
+# Known current limitations
 
 * [ ] a dictionary can only contain dictionaries or .pdfs, not a mix
 * [ ] notes that only specify a category but are empty otherwise throw errors (completely empty notes probably, too)
